@@ -1,0 +1,140 @@
+@model MoodTunes.Models.MoodStats
+@{
+    ViewData["Title"] = "Mood Statistics";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .back-btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .stats-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .stat-title {
+            font-size: 0.9em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .frequency-list {
+            list-style: none;
+        }
+        .frequency-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .genre-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .genre-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+        .empty-state {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="@Url.Action("Index")" class="back-btn">← Back to Journal</a>
+        <h1>📊 Your Mood Insights</h1>
+
+        @if (string.IsNullOrEmpty(Model.MostCommonMood))
+        {
+            <div class="empty-state">
+                <p>Not enough data yet. Keep logging your moods! 🌟</p>
+            </div>
+        }
+        else
+        {
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Most Common Mood</div>
+                    <div class="stat-value">@Model.MostCommonMood</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-title">Average Intensity</div>
+                    <div class="stat-value">@Model.AverageIntensity.ToString("F1")/10</div>
+                </div>
+
+                <div class="stat-card" style="grid-column: 1 / -1;">
+                    <div class="stat-title">Mood Frequency</div>
+                    <ul class="frequency-list">
+                        @foreach (var mood in Model.MoodFrequency.OrderByDescending(m => m.Value))
+                        {
+                            <li class="frequency-item">
+                                <span>@mood.Key</span>
+                                <strong>@mood.Value times</strong>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                @if (Model.TopGenres.Any())
+                {
+                    <div class="stat-card" style="grid-column: 1 / -1;">
+                        <div class="stat-title">Your Top Music Genres</div>
+                        <div class="genre-list">
+                            @foreach (var genre in Model.TopGenres)
+                            {
+                                <span class="genre-badge">@genre</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</body>
+</html>
