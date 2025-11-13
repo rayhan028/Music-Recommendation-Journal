@@ -1,0 +1,178 @@
+@model List<MoodTunes.Models.MoodEntry>
+@{
+    ViewData["Title"] = "MoodTunes Journal";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { 
+            color: white; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: #fff; color: #667eea; font-weight: 600; }
+        .btn-secondary { background: rgba(255,255,255,0.2); color: white; }
+        .entries {
+            display: grid;
+            gap: 20px;
+        }
+        .entry-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .mood-badge {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .date {
+            color: #888;
+            font-size: 0.9em;
+        }
+        .intensity {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        .dot.filled { background: #667eea; }
+        .genres {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .genre-tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+        .notes {
+            margin-top: 10px;
+            color: #555;
+            font-style: italic;
+        }
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .empty-state {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 MoodTunes Journal</h1>
+        
+        <div class="nav-buttons">
+            <a href="@Url.Action("Create")" class="btn btn-primary">+ Log Mood</a>
+            <a href="@Url.Action("Stats")" class="btn btn-secondary">📊 View Stats</a>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <p>No mood entries yet. Start logging your feelings! 🌟</p>
+            </div>
+        }
+        else
+        {
+            <div class="entries">
+                @foreach (var entry in Model)
+                {
+                    <div class="entry-card">
+                        <div class="entry-header">
+                            <div>
+                                <div class="mood-badge">@entry.Mood</div>
+                                <div class="date">@entry.Date.ToString("MMM dd, yyyy - hh:mm tt")</div>
+                            </div>
+                            <form method="post" asp-action="Delete" style="display:inline;">
+                                <input type="hidden" name="id" value="@entry.Id" />
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                        
+                        <div class="intensity">
+                            Intensity: 
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <div class="dot @(i <= entry.Intensity ? "filled" : "")"></div>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(entry.Notes))
+                        {
+                            <div class="notes">"@entry.Notes"</div>
+                        }
+
+                        @if (entry.SuggestedGenres.Any())
+                        {
+                            <div class="genres">
+                                🎧 Recommended:
+                                @foreach (var genre in entry.SuggestedGenres)
+                                {
+                                    <span class="genre-tag">@genre</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</body>
+</html>
